@@ -10,6 +10,9 @@ from pynamodb.attributes import UnicodeAttribute, NumberAttribute, MapAttribute
 
 # アクセストークン
 access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')
+
+# bot のユーザID
+bot_user_id = os.getenv('LINE_USER_ID')
 line_bot = LineBotApi(access_token)
 
 # 問題毎のユーザスコアを格納するクラス
