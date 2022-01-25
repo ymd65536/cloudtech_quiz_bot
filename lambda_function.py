@@ -115,13 +115,14 @@ def lambda_handler(event, context):
   print("Received event: " + json.dumps(event, indent=2))
 
   # Webhookの接続確認用
-  if len(event['body']) == 0:
+  body = json.loads(event['body'])
+
+  if len(body['events']) == 0:
       return {
           'statusCode': 200,
           'body': ''
       }
 
-  body = json.loads(event['body'])
   print(body)
   user_id = body['events'][0]['source']['userId']
 
