@@ -1,5 +1,6 @@
 import os
 import json
+import requests
 import boto3
 
 from linebot import LineBotApi
@@ -109,6 +110,63 @@ def update_score(user_score, answer):
         'msg': [result_msg, next_msg]
     }
 
+# リッチメニューを設定する関数
+def register_and_apply_richmenu():
+    print('register richmenu')
+
+    # チャネルアクセストークンの設定
+    # ベアラー
+    headers = {"Authorization": "Bearer {%s}" % access_token}
+
+    # リッチメニューの名前を設定
+    rich_menu_name = "start_menu"
+
+    # チャットバーのテキスト
+    chat_bar_name = "メニューを開く"
+
+    # 範囲は画像と同じ大きさに設定
+    x = 0
+    y = 0
+    width = 2500
+    height = 843
+    bounds={"x":x,"y":y,"width":width,"height":height}
+
+    # 画像サイズの指定
+    size = {"width":width, "height": height}
+
+    # リッチメニューのアクションタイプ
+    action = {"type": "message"}
+    action["text"] = "start"
+    areas = []
+    areas.append({"bounds": bounds, "action": action})
+
+    # 画像パス
+    image_path= "./img/menu.png"
+
+    # 送信データの作成
+    send_dic = {"size":size,"selected":True,"name":rich_menu_name,"chatBarText":chat_bar_name,"areas":areas}
+    send_json = json.dumps(send_dic)
+
+    # リッチメニューの登録
+    register_url = "https://api.line.me/v2/bot/richmenu"
+    res = requests.post(register_url, headers=dict(headers, **{"Content-Type": "application/json"}), data=send_json,verify=True).json()
+    rich_menu_id = res["richMenuId"]
+
+    # 取得したリッチメニューIDを元に画像をアップロード
+    upload_url = "https://api-data.line.me/v2/bot/richmenu/%s/content" % rich_menu_id
+    image_file = open(image_path,"rb")
+    requests.post(upload_url, headers=dict(headers, **{"Content-Type": "image/jpeg"}), data=image_file, verify=True)
+
+    # 特定のユーザIDにリッチメニューを登録
+    apply_url = "https://api.line.me/v2/bot/user/%s/richmenu/%s" % (bot_user_id,rich_menu_id)
+    requests.post(apply_url, headers=headers, verify=True)
+
+    # リッチメニューの設定をチェック
+    applied_url = "https://api.line.me/v2/bot/user/%s/richmenu" % bot_user_id
+    res = requests.get(applied_url, headers=headers, verify=True).json()
+
+    if not res["richMenuId"] == "":
+        print("リッチメニューが設定されています。")
 
 def lambda_handler(event, context):
 
@@ -129,8 +187,13 @@ def lambda_handler(event, context):
   event_type = body['events'][0]['type']
   message_text = body['events'][0]['message']['text'] if event_type == 'message' else ''
 
-  # アカウントがフォローされたときと「start」が入力された時に出題開始
-  if event_type == 'follow' or message_text == 'start' :
+  if event_type == 'follow' :
+    # アカウントがフォローされたときはリッチメニューを適用する
+    register_and_apply_richmenu()
+
+  elif message_text == 'start' :
+
+    #「start」が入力された時に出題開始
     reply_token =  body['events'][0]['replyToken']
     # ユーザスコアが存在しない場合は作成する
     # iam:dynamodb:DescribeTable
