@@ -23,19 +23,6 @@ class ScoreMap(MapAttribute):
   q2 = NumberAttribute(null=True)
   q3 = NumberAttribute(null=True)
 
-# 問題文のスコアを格納するモデル
-class Score(Model):
-  class Meta:
-    table_name = 'Score'
-    region = 'ap-northeast-1'
-    # aws_access_key_id = os.getenv('aws_access_key_id')
-    # aws_secret_access_key = os.getenv('aws_secret_access_key')
-
-  question_id = UnicodeAttribute(hash_key=True)
-  question = UnicodeAttribute()
-  answer = UnicodeAttribute()
-  score = NumberAttribute()
-
 dynamodb = boto3.resource('dynamodb')
 scores = dynamodb.Table('Score')
 
