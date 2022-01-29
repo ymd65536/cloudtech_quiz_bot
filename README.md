@@ -9,7 +9,7 @@ cd cloudtech_quiz_bot
 python -m pip install LINE-bot-sdk pynamodb -t .
 ```
 
-cloudtech_quiz_bot 内のファイルを全て圧縮して
-cloudtech_quiz_bot.zipという名前で保存する。
+## リッチメニューの設定
 
-※2重フォルダにならないように気をつけること。
+[line_lich_menu](https://github.com/ymd65536/line_rich_menu)で実行するので
+botでは特に設定しない
