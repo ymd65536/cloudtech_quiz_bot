@@ -114,7 +114,7 @@ def lambda_handler(event, context):
 
   if message_text == 'start'  or event_type == 'follow' :
 
-    #「start」が入力された時に出題開始
+    #「start」が入力された時または「follow」を検出した時に出題開始
     reply_token =  body['events'][0]['replyToken']
     # ユーザスコアが存在しない場合は作成する
     # iam:dynamodb:DescribeTable
